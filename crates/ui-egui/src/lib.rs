@@ -128,6 +128,8 @@ mod tests_sysclip;
 #[cfg(test)]
 mod tests_sysclip_emf;
 #[cfg(test)]
+mod tests_sysclip_probe;
+#[cfg(test)]
 mod tests_transparencygrid;
 #[cfg(test)]
 mod tests_widthtool;
@@ -141,7 +143,7 @@ use vectorcraft_engine::{Session, ViewInfo};
 
 pub use control::{ControlRequest, ControlResponse};
 pub use state::{UiState, View};
-pub use sysclip::SystemClipboard;
+pub use sysclip::{ClipboardProbeFactory, SystemClipboard};
 
 /// What a file dialog shows: a suggested file name (save dialogs), the folder to start in and the
 /// file-type filters.
@@ -204,6 +206,10 @@ pub struct Services {
     /// Paste takes SVG, PDF, text and bitmaps from other apps. Without it, SVG text only (through
     /// egui and `clipboard_read`).
     pub system_clipboard: Option<Box<dyn SystemClipboard>>,
+    /// A factory for a second system-clipboard handle, checked on a background thread so an
+    /// unresponsive clipboard owner never freezes the UI ([`VectorcraftApp::system_paste`]).
+    /// Without it, that check stays on the UI thread, as before.
+    pub clipboard_probe: Option<ClipboardProbeFactory>,
     /// File → Show in Folder: select a file in the system file manager (desktop).
     pub reveal: Option<RevealFn>,
     /// Write a file from any thread (desktop): lets Background Save and Export write off the UI
